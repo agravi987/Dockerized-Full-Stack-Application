@@ -1,131 +1,123 @@
-# 📚 Dockerized Full-Stack Application — Guide Series
+# 🐳 Dockerized Full-Stack Application — Milestone Guide
 
-> **Last Updated:** September 9, 2026
+> **Last Updated:** September 10, 2026
 
 ---
 
-## 🎯 What This Guide Does
+## 🎯 What This Journey Produces
 
-Takes you from **zero Docker knowledge** to a **fully containerized full-stack application** — with production-grade practices baked in from the start.
+A React + Node.js + PostgreSQL application, containerized with Docker, tested in Docker Desktop, and deployed to AWS EC2 with a real domain and HTTPS.
 
-**The promise:** at the end, this single command starts your entire application:
-
-```bash
-docker compose up
+```
+https://yourdomain.com
+        │
+        ▼
+EC2 Instance (Ubuntu) ── host Nginx (SSL)
+        │
+        ▼ Port 8080
+Frontend Container (Nginx) ── proxies /api
+        │
+        ▼ Port 3000
+Backend Container (Node/Express)
+        │
+        ▼ Port 5432
+Database Container (PostgreSQL) ── persistent volume
 ```
 
 ---
 
-## 🧠 The One Idea Behind Everything
+## 🗺️ The 11 Milestones
 
-**A container = your app + everything it needs to run, packaged once, running anywhere.**
+Each milestone is a standalone file with commands, expected output, and a checkpoint. Do them **in order** — every one builds on the last.
 
-Instead of installing Node.js, PostgreSQL, and Nginx on your computer (and hoping a teammate installs the same versions), you describe each piece in a file, and Docker builds and runs them identically on every machine.
+| # | 🏁 Milestone | 🎯 What You Complete | ⏱️ Est. |
+|---|--------------|----------------------|---------|
+| 1 | [Prerequisites & Setup](01-prerequisites-and-setup.md) | Docker Desktop, Node, Git installed; first containers run | ~25 min |
+| 2 | [Build the Backend](02-build-the-backend.md) | Express API with `/api/health` + `/api/messages` | ~25 min |
+| 3 | [Build the Frontend](03-build-the-frontend.md) | React app calling relative `/api` URLs | ~20 min |
+| 4 | [Containerize with Dockerfiles](04-containerize-with-dockerfiles.md) | Multi-stage, non-root images for both apps + Nginx proxy | ~35 min |
+| 5 | [Networks & Volumes](05-networks-and-volumes.md) | Containers talk by name; database data survives restarts | ~25 min |
+| 6 | [Compose & Local Testing](06-docker-compose-and-local-testing.md) | Whole stack runs with `docker compose up` in Docker Desktop | ~25 min |
+| 7 | [Health Checks, Logging & Debugging](07-health-checks-logging-debugging.md) | Self-healing stack + a workflow that fixes any error | ~25 min |
+| 8 | [Dev vs Production Config](08-dev-vs-production.md) | Hot reload in dev, lean images in prod, one codebase | ~20 min |
+| 9 | [Deploy to EC2](09-deploy-to-ec2.md) | Full stack live on AWS at `http://<ip>` | ~40 min |
+| 10 | [Domain Name & HTTPS](10-domain-and-https.md) | Your own domain with a free SSL certificate | ~35 min |
+| 11 | [Security & Final Checklist](11-security-hardening-and-final-check.md) | Production hardening + portfolio-grade sign-off | ~25 min |
 
-| Old Way 😩 | Container Way 😎 |
-|-----------|------------------|
-| "Works on my machine" | Works on every machine |
-| Manual installs, version drift | Version pinned in a `Dockerfile` |
-| DB setup documented in a wiki | DB setup is code |
-| 20-step deploy doc | `docker compose up` |
+**Total: ~5 hours** including all hands-on verification.
 
 ---
 
-## ✅ Prerequisites
+## 🧰 What You Need (Nothing Expensive)
+
+| Item | Cost |
+|------|------|
+| Windows laptop with ~5 GB free disk | Already yours |
+| Docker Desktop (free) | $0 |
+| AWS account (free tier: t2.micro + 30 GB EBS) | $0 for 12 months |
+| A domain name (optional but recommended) | ~$10/year |
+
+---
+
+## 🚀 How to Use This Guide
 
 ```text
-[ ] 💻 Local computer (Windows, macOS, or Linux)
-[ ] ⌨️ Terminal access (Git Bash on Windows works great)
-[ ] 🐙 Git installed
-[ ] 📦 Node.js v18+ installed locally (only to generate lockfiles — Guide 02)
-[ ] 🐳 Docker Desktop (Windows/macOS) or Docker Engine (Linux) — Guide 01
+1. Open the milestone file for where you are
+2. Run every command — don't skip the verification steps
+3. Red text ≠ failure. Expected errors are labeled as such.
+4. Hit a wall? Milestone 07 has a debugging ladder that fixes anything.
+5. Finish each file's ✅ Checkpoint before moving on.
 ```
 
-> 💡 **Don't have Docker yet?** Guide 01 covers installation step by step.
+### 🇳🇵 Nepali One-Liners
 
----
-
-## 📖 Guide Order
-
-**Follow these in order.** Each guide builds on the previous one.
-
-| # | 📖 Guide | 🎯 What You Do | ⏱️ Est. Time |
-|---|---------|----------------|--------------|
-| 1 | [🐳 Docker Fundamentals](01-docker-fundamentals.md) | Install Docker, learn images vs containers | ~20 min |
-| 2 | [🏗️ Project Overview & App](02-project-overview.md) | Create the app: React + Express + PostgreSQL | ~30 min |
-| 3 | [⚡ Backend Dockerfile](03-backend-dockerfile.md) | Multi-stage, non-root backend image | ~20 min |
-| 4 | [🎨 Frontend Dockerfile](04-frontend-dockerfile.md) | Node build stage → Nginx serve stage | ~25 min |
-| 5 | [🌐 Docker Networks](05-docker-networks.md) | Containers talking to each other by name | ~15 min |
-| 6 | [💾 Docker Volumes](06-docker-volumes.md) | Persistent database storage | ~15 min |
-| 7 | [🎼 Docker Compose](07-docker-compose.md) | The whole stack, one command | ~25 min |
-| 8 | [🏥 Health Checks](08-health-checks.md) | Smart startup order + self-healing | ~15 min |
-| 9 | [📋 Logging & Debugging](09-logging-and-debugging.md) | Logs, exec, stats, log rotation | ~15 min |
-| 10 | [🧪 Dev vs Production](10-dev-vs-production.md) | Two configs, one codebase | ~20 min |
-| 11 | [🚀 Optimization & Security](11-optimization-and-security.md) | Small images, hardened containers | ~20 min |
-| 12 | [🔧 Troubleshooting](12-troubleshooting.md) | The errors everyone hits, fixed | ~15 min |
-| 13 | [✅ Final Validation](13-final-validation.md) | Full checklist + portfolio write-up | ~15 min |
-
-**Total estimated time:** ~4 hours (including hands-on practice)
-
----
-
-## 🛠️ What You Will Learn
-
-| Skill | Where |
-|-------|-------|
-| Dockerfile instructions (`FROM`, `COPY`, `RUN`, `CMD`…) | Guides 03–04 |
-| Multi-stage builds | Guides 03–04 |
-| Non-root containers | Guides 03–04, 11 |
-| `.dockerignore` | Guides 03–04 |
-| Docker networks + container DNS | Guide 05 |
-| Named volumes + persistence | Guide 06 |
-| Docker Compose services, env vars, depends_on | Guide 07 |
-| Health checks + startup ordering | Guide 08 |
-| Container logging + rotation | Guide 09 |
-| Compose override files (dev vs prod) | Guide 10 |
-| Image optimization + security scanning | Guide 11 |
-
----
-
-## 🎯 How to Use This Guide
+Every hard concept has a **one-line Nepali explanation** (marked with the flag 🇳🇵) — read it first, then the English details make more sense.
 
 ```text
-1️⃣  Read each guide top to bottom — don't skip the 💡 Why boxes
-2️⃣  Run every command and verify the ✅ checkpoints
-3️⃣  Build things in the order given (files → build → test)
-4️⃣  If something fails, check Guide 12 (Troubleshooting) first
-5️⃣  Don't copy-paste blindly — type the Dockerfiles yourself at least once
+💡 Example:  Image = recipe, Container = baked cake
+             (नेपाली व्याख्या = तपाईंको बुझाइको शुरुवात)
 ```
 
-> **⚠️ Rule:** Never skip a verification step. If a command fails, fix it before continuing — every later guide assumes the earlier ones work.
+> ✅ **Verified stack:** every command and config file in this guide was
+> actually built and tested on Docker Desktop (docker-engine 29, Ubuntu-based
+> images). The production stack came up `healthy`, the dev mode hot-reloaded
+> correctly, and data survived `docker compose down`.
 
 ---
 
-## 📊 Progress Tracker
+## 📁 Project Structure You'll Build
 
-Use this to track your progress:
-
-```text
-Phase 1: Foundations      [ ] Guide 01 — Docker installed & understood
-Phase 2: The App          [ ] Guide 02 — App code created
-Phase 3: Images           [ ] Guides 03-04 — Backend & frontend Dockerfiles
-Phase 4: Docker Concepts  [ ] Guides 05-06 — Networks + volumes hands-on
-Phase 5: Orchestration    [ ] Guides 07-08 — Compose + health checks
-Phase 6: Operations       [ ] Guides 09-11 — Logging + dev/prod + optimization
-Phase 7: Ship It          [ ] Guides 12-13 — Troubleshooting + final validation
+```
+docker-fullstack-app/
+├── frontend/
+│   ├── src/                ← React source
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   └── package.json
+├── backend/
+│   ├── src/
+│   │   ├── index.js
+│   │   └── db.js
+│   ├── Dockerfile
+│   └── package.json
+├── database/
+│   └── init.sql
+├── docker-compose.yml
+├── docker-compose.dev.yml
+├── .env                    ← real secrets (git-ignored)
+├── .env.example            ← template (committed)
+└── .gitignore
 ```
 
 ---
 
-## 🆘 Getting Help
+## 🎓 What You'll Be Able to Say After This
 
-If you get stuck:
-
-1. 📖 Read the **error message** — Docker error messages are usually honest about the problem
-2. 📖 Check [🔧 Troubleshooting](12-troubleshooting.md) — your exact error is probably there
-3. 🔍 Run `docker compose ps` — is every service `Up`? Is one restarting?
-4. 🔍 Run `docker compose logs <service>` — read the last 30 lines
+> *"I containerized a full-stack app with multi-stage builds, non-root users,
+> health checks, and persistent volumes — then deployed it to AWS EC2 behind a
+> real domain with HTTPS via Let's Encrypt. The whole stack starts with
+> `docker compose up`."*
 
 ---
 
-**Ready?** Start with [Guide 01 — Docker Fundamentals](01-docker-fundamentals.md) →
+**Start here:** [Milestone 1 — Prerequisites & Setup](01-prerequisites-and-setup.md) →

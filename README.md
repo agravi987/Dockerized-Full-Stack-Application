@@ -1,6 +1,6 @@
 # 🐳 Dockerized Full-Stack Application
 
-> **Last Updated:** September 9, 2026
+> **Last Updated:** September 10, 2026
 > **Portfolio Project 2 — Containerized React + Node.js + PostgreSQL**
 
 ---
@@ -13,9 +13,9 @@ Take a full-stack web application and make it **fully reproducible with one comm
 docker compose up
 ```
 
-No "install Node on your machine", no "install PostgreSQL locally" — everything runs in containers.
+No "install Node on your machine", no "install PostgreSQL locally" — everything runs in containers. Then deploy it to AWS EC2 behind your own domain with HTTPS.
 
-```
+```text
               ┌──────────────────┐
               │      You 🧑‍💻      │
               │  Browser :8080   │
@@ -30,13 +30,13 @@ No "install Node on your machine", no "install PostgreSQL locally" — everythin
                        ▼
               ┌──────────────────┐
               │  ⚡ Backend      │  Node.js + Express API
-              │  Container :3000 │
+              │  Container :3000 │  (non-root user)
               └────────┬─────────┘
                        │  SQL over :5432
                        ▼
               ┌──────────────────┐
               │  🐘 PostgreSQL   │  Data persisted in a Docker volume
-              │  Container :5432 │
+              │  Container :5432 │  (not exposed to the internet)
               └──────────────────┘
 ```
 
@@ -46,9 +46,9 @@ No "install Node on your machine", no "install PostgreSQL locally" — everythin
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| 🎨 Frontend | React (Vite) | User interface |
-| 🔷 Web Server | Nginx (unprivileged) | Serves frontend + reverse-proxies `/api` |
-| ⚡ Backend | Node.js 20 / Express | REST API |
+| 🎨 Frontend | React 19 (Vite 8) | User interface |
+| 🔷 Web Server | Nginx 1.27 (unprivileged `nginx` user) | Serves frontend + reverse-proxies `/api` |
+| ⚡ Backend | Node.js 22 / Express 5 | REST API (unprivileged `node` user) |
 | 🐘 Database | PostgreSQL 16 | Data storage |
 | 🐳 Containers | Docker + Docker Compose | Everything above, reproducible |
 
@@ -58,45 +58,41 @@ No "install Node on your machine", no "install PostgreSQL locally" — everythin
 
 | Practice | Why It Matters |
 |----------|----------------|
-| 🧱 Multi-stage builds | Small production images (no build tools inside) |
-| 👤 Non-root containers | Security — even the app running inside can't wreck the container |
+| 🧱 Multi-stage builds (with named `--target`s) | Small production images (no build tools inside) |
+| 👤 Non-root containers | Security — even the app inside can't wreck the container |
 | 🚫 `.dockerignore` | Fast builds, no secrets/junk copied into images |
-| 🏥 Health checks | Docker knows if each service is *actually* working |
+| 🏥 Health checks (`127.0.0.1`, IPv6-safe) | Docker knows if each service is *actually* working |
 | 💾 Persistent volume | Database survives `docker compose down` |
 | 🌐 Custom Docker network | Containers talk by name; DB is **not** exposed to the internet |
 | 🔐 Environment variables | No passwords baked into images or code |
 | 🧪 Dev vs production config | Hot-reload while developing, lean images in production |
-| 📋 Container logging | `docker logs` + log rotation, like a real deployment |
+| 🌤️ Real deployment | EC2 + domain + free HTTPS via Let's Encrypt |
 
 ---
 
-## 📚 Quick Links
+## 📚 The 11 Milestones
 
-**Follow the guides in order.** Each one builds on the previous.
+Follow them **in order**. Each one builds on the previous, has runnable commands, and ends with a checkpoint.
 
-| # | 📖 Guide | 🎯 What You Do | ⏱️ Est. Time |
-|---|---------|----------------|--------------|
-| 1 | [🐳 Docker Fundamentals](docs/01-docker-fundamentals.md) | Understand images/containers + install Docker | ~20 min |
-| 2 | [🏗️ Project Overview & App](docs/02-project-overview.md) | Create the app you will containerize | ~30 min |
-| 3 | [⚡ Backend Dockerfile](docs/03-backend-dockerfile.md) | Multi-stage, non-root backend image | ~20 min |
-| 4 | [🎨 Frontend Dockerfile](docs/04-frontend-dockerfile.md) | Build with Node, serve with Nginx | ~25 min |
-| 5 | [🌐 Docker Networks](docs/05-docker-networks.md) | Container-to-container communication | ~15 min |
-| 6 | [💾 Docker Volumes](docs/06-docker-volumes.md) | Make database data survive restarts | ~15 min |
-| 7 | [🎼 Docker Compose](docs/07-docker-compose.md) | Run the whole stack with one command | ~25 min |
-| 8 | [🏥 Health Checks](docs/08-health-checks.md) | Smart startup order + self-healing | ~15 min |
-| 9 | [📋 Logging & Debugging](docs/09-logging-and-debugging.md) | Read logs, exec into containers, rotate logs | ~15 min |
-| 10 | [🧪 Dev vs Production](docs/10-dev-vs-production.md) | Hot reload in dev, lean images in prod | ~20 min |
-| 11 | [🚀 Optimization & Security](docs/11-optimization-and-security.md) | Shrink images, lock things down | ~20 min |
-| 12 | [🔧 Troubleshooting](docs/12-troubleshooting.md) | Fix the errors everyone hits | ~15 min |
-| 13 | [✅ Final Validation](docs/13-final-validation.md) | Full checklist + portfolio write-up | ~15 min |
+| # | 🏁 Milestone | ⏱️ |
+|---|--------------|-----|
+| 1 | [Prerequisites & Setup](docs/01-prerequisites-and-setup.md) | ~25 min |
+| 2 | [Build the Backend](docs/02-build-the-backend.md) | ~25 min |
+| 3 | [Build the Frontend](docs/03-build-the-frontend.md) | ~20 min |
+| 4 | [Containerize with Dockerfiles](docs/04-containerize-with-dockerfiles.md) | ~35 min |
+| 5 | [Networks & Volumes](docs/05-networks-and-volumes.md) | ~25 min |
+| 6 | [Compose & Local Testing](docs/06-docker-compose-and-local-testing.md) | ~25 min |
+| 7 | [Health Checks, Logging & Debugging](docs/07-health-checks-logging-debugging.md) | ~25 min |
+| 8 | [Dev vs Production Config](docs/08-dev-vs-production.md) | ~20 min |
+| 9 | [Deploy to EC2](docs/09-deploy-to-ec2.md) | ~40 min |
+| 10 | [Domain Name & HTTPS](docs/10-domain-and-https.md) | ~35 min |
+| 11 | [Security & Final Checklist](docs/11-security-hardening-and-final-check.md) | ~25 min |
 
-**Total estimated time:** ~4 hours (including hands-on practice)
+**Total: ~5 hours** including hands-on practice. Every concept has a 🇳🇵 Nepali one-liner.
 
 ---
 
-## 🚀 Quick Start (After Completing the Guides)
-
-Once you finish the guides, your finished project runs anywhere Docker runs:
+## 🚀 Quick Start (After Milestone 6)
 
 ```bash
 # 1. Get the code
@@ -133,15 +129,19 @@ docker compose down -v
 ```
 Dockerized Full-Stack Application/
 ├── README.md                  ← You are here
-├── docs/                      ← The 13-part step-by-step guide
-└── docker-fullstack-app/      ← The app you build in Guide 02+
+├── docs/                      ← The 11-part step-by-step milestone guide
+└── docker-fullstack-app/      ← The app you build in Milestone 2+
     ├── frontend/              ← React + Nginx (container 1)
+    │   ├── Dockerfile         ← multi-stage: build (node) → serve (nginx) → dev
+    │   └── nginx.conf         ← SPA routing + /api proxy to backend:3000
     ├── backend/               ← Express API (container 2)
+    │   └── Dockerfile         ← multi-stage: deps → prod-deps → runtime → dev
     ├── database/
     │   └── init.sql           ← Table created on first startup
-    ├── docker-compose.yml     ← The whole stack in one file
-    ├── docker-compose.dev.yml ← Dev overrides (Guide 10)
-    ├── .env.example           ← Template for secrets
+    ├── docker-compose.yml     ← The whole stack in one file (prod targets)
+    ├── docker-compose.dev.yml ← Dev overrides: bind mounts + hot reload
+    ├── .env.example           ← Template for secrets (committed)
+    ├── .env                   ← Real secrets (git-ignored)
     └── .gitignore
 ```
 
@@ -151,6 +151,7 @@ Dockerized Full-Stack Application/
 
 > *"I containerized a full-stack application with multi-stage builds, non-root
 > users, health checks, persistent volumes, and separate dev/production
-> configurations — the entire stack starts with `docker compose up`."*
+> configurations — then deployed it to AWS EC2 behind a real domain with
+> HTTPS. The whole stack starts with `docker compose up`."*
 
 That sentence is exactly what DevOps interviewers want to hear. 🚀

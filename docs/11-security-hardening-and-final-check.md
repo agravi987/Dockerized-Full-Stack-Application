@@ -30,7 +30,7 @@ Health checks         → failures are detected, not silent
 HTTPS                 → traffic encrypted in transit
 ```
 
-> 🇳🇵 **सरल व्याख्या:** Security भनेको "घरको ढोका-झ्याल बन्द गरेर ताला लगाउने" हो — non-root user (सीमित अधिकार), बन्द डाटाबेस (बाहिर देखिँदैन), firewall (नचाहिने पोर्ट बन्द), र HTTPS (data चोर्न नसकिने) — यी सबै तहको सुरक्षा।
+> 🇳🇵 **Saral Byakhya:** Security bhaneko gharko dhoka-jhyal bandha garera taala lagaune ho — non-root user (simit adhikaar), bandha database (bahira dekhidaina), firewall (nachahine port bandha), ra HTTPS (data chorna nasakne) — yi sabai tahako suraksha.
 
 ---
 

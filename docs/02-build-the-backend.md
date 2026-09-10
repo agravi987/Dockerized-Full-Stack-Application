@@ -88,7 +88,7 @@ export async function initDb() {
 
 > 💡 Every config value comes from an **environment variable with a local fallback**. That's the one habit making the same code run on your laptop, in Docker Desktop, and on EC2.
 
-> 🇳🇵 **सरल व्याख्या:** पासवर्ड जस्ता गोप्य कुरा code मा नलेखी environment variable (`.env` फाइल) बाट लिइन्छ — एउटै code ले जुनसुकै ठाउँको सेटिङ मान्छ, र गोप्यता पनि जोगिन्छ।
+> 🇳🇵 **Saral Byakhya:** Password jasta gopya kura code ma nalekhi environment variable (`.env` file) bata linchha — eutai code le junsukai thauko setting manchha, ra gopyata pani joginchha.
 
 ---
 

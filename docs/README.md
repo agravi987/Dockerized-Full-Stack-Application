@@ -71,11 +71,11 @@ Each milestone is a standalone file with commands, expected output, and a checkp
 
 ### 🇳🇵 Nepali One-Liners
 
-Every hard concept has a **one-line Nepali explanation** (marked with the flag 🇳🇵) — read it first, then the English details make more sense.
+Every hard concept has a **one-line Nepali explanation** (marked with the flag 🇳🇵, written in English letters so you can pronounce it easily) — read it first, then the English details make more sense.
 
 ```text
 💡 Example:  Image = recipe, Container = baked cake
-             (नेपाली व्याख्या = तपाईंको बुझाइको शुरुवात)
+             (Nepali byakhya = tapaiko bujhako suruwat)
 ```
 
 > ✅ **Verified stack:** every command and config file in this guide was

@@ -22,7 +22,7 @@ Move the stack from your laptop to a real Linux server on AWS EC2 — reachable 
 
 EC2 is a virtual machine in AWS's cloud. It runs Ubuntu, where Docker is a first-class citizen — exactly what your stack needs. It's also the most common "I deployed Docker to a server" interview story.
 
-> 🇳🇵 **सरल व्याख्या:** Security group भनेको EC2 को आगो पर्खाल हो — कुन पोर्ट (22, 80, 443) कसले खोल्न पाउँछ भन्ने नियम। SSH (22) लाई तपाईंको आफ्नै IP मा मात्र खोल्नु बुद्धिमानी हो।
+> 🇳🇵 **Saral Byakhya:** Security group bhaneko EC2 ko aago parkhaal ho — kun port (22, 80, 443) kasle kholna paunchha bhanne niyam. SSH (22) lai tapaiko aafnai IP ma matra kholnu buddhimani ho.
 
 ---
 

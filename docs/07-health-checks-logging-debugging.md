@@ -72,7 +72,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 > 💡 **Why `127.0.0.1`, not `localhost`:** Alpine's BusyBox `wget` can resolve `localhost` to IPv6 `::1`, but Node/Nginx listen on IPv4 only — the probe would get *"connection refused"* while the app is perfectly fine. Using `127.0.0.1` forces IPv4. Same reason we avoid `curl` (not installed in Alpine) and use `wget` instead.
 
-> 🇳🇵 **सरल व्याख्या:** Healthcheck भनेको Docker ले केही समयमा app लाई "ठीक छैन?" भनेर सोध्ने जाँच हो — जवाफ नआए app लाई अस्वस्थ मानेर पुनः सुरु गरिन्छ।
+> 🇳🇵 **Saral Byakhya:** Healthcheck bhaneko Docker le kehi samayama app lai "thik chaina?" bhanera sodhne jach ho — jawaf naaye app lai aswastha manera punah suru garinchha.
 
 > 💡 Using `curl` in an Alpine image is the classic "works on my machine" bug — Alpine ships BusyBox `wget`, not curl.
 

@@ -24,7 +24,7 @@ On your laptop:      localhost = your machine (Postgres is here)  ✅
 Inside a container:  localhost = THAT container itself           ❌ no Postgres inside
 ```
 
-> 🇳🇵 **सरल व्याख्या:** Container भित्र `localhost` भनेको त्यही container आफैं हो, अरू कुनै service होइन — त्यसैले services लाई एकअर्काको नामले बोलाइन्छ (`db`, `backend`), `localhost` ले होइन।
+> 🇳🇵 **Saral Byakhya:** Container bhitra `localhost` bhaneko tyahi container aafai ho, aru kunai service hoina — tyasaile services lai ek-arkako naamle bolainchha (`db`, `backend`), `localhost` le hoina.
 
 Containers are isolated by default. On a **user-defined Docker network**, an embedded DNS server maps container/service names to IPs:
 
@@ -126,7 +126,7 @@ docker rm -f db
 
 A container's writable layer is **thrown away on removal** — your users' data would vanish on every redeploy.
 
-> 🇳🇵 **सरल व्याख्या:** Container मेटिए पनि data नमेटियोस् भनेर database को data volume नामक बाहिरी भण्डारमा राखिन्छ — घर भत्काए पनि बाहिरको गोदाममा राखेको सामान जोगिन्छ।
+> 🇳🇵 **Saral Byakhya:** Container metie pani data nametiyos bhanera database ko data volume naamak bahiri bhandarma rakhinchha — ghar bhatkaayepani bahirako godamma rakheko saman joginchha.
 
 ---
 

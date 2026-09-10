@@ -29,7 +29,7 @@ Compose moves all those manual flags into **code**:
 | `-v pgdata:...` | `volumes:` block |
 | Starting things in the right order | `depends_on:` |
 
-> 🇳🇵 **सरल व्याख्या:** Compose भनेको तीनवटै service (frontend, backend, db) लाई एउटै फाइलबाट चलाउने "एउटै कमाण्ड" हो — हातले गर्नुपर्ने सबै जोड-तोड (network, volume, ports) एकै ठाउँमा लेखिएको हुन्छ।
+> 🇳🇵 **Saral Byakhya:** Compose bhaneko tinatai service (frontend, backend, db) lai eutai filebata chalaune "eutai command" ho — hatle garnuparne sabai jod-tod (network, volume, ports) ekai thauma lekhieko hunchha.
 
 ---
 

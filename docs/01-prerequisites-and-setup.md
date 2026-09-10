@@ -39,7 +39,7 @@ Image = your code + runtime + libraries + system tools + config
 | 🖼️ **Image** | A recipe 🍰 | Read-only template with your app inside |
 | 📦 **Container** | The cake 🎂 | A *running instance* of an image |
 
-> 🇳🇵 **सरल व्याख्या:** Image भनेको "पकवान बनाउने विधि (recipe)" हो, container भनेको त्यही विधिबाट बनेको चलिरहेको cake — एउटै विधिबाट जतिवटा cake चाहिन्छ बनाउन सकिन्छ।
+> 🇳🇵 **Saral Byakhya:** Image bhaneko "pakwan banaune bidhi (recipe)" ho, container bhaneko tyahi bidhibata baneko chaliraheko cake — eutai bidhibata jati wata cake chahinchha banauna sakinchha.
 
 One image → many containers. Your code built once → runs identically on your laptop, Docker Desktop, and EC2.
 

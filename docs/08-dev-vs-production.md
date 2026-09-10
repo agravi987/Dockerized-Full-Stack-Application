@@ -40,7 +40,7 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 One source of truth for shared parts; small readable diffs per environment.
 
-> 🇳🇵 **सरल व्याख्या:** एउटै codebase लाई दुई मोडमा चलाइन्छ — dev मा "bind mount" (तपाईंको laptop को code सिधै container मा जोडिन्छ, परिवर्तन तुरुन्तै देखिन्छ) र prod मा "baked-in" (code image भित्र पसाइन्छ, छिटो र चुस्त)।
+> 🇳🇵 **Saral Byakhya:** Eutai codebase lai dui modma chalainchha — dev ma "bind mount" (tapaiko laptop ko code sidhai container ma jodinchha, paribartan turuntai dekhinchha) ra prod ma "baked-in" (code image bhitra pasainchha, chhito ra chusto).
 
 ---
 

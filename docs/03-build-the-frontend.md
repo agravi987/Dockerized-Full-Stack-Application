@@ -162,7 +162,7 @@ Production: Nginx proxies /api → backend                (Milestone 4)
 
 Your frontend code **never changes between environments**. A common beginner mistake is hardcoding `http://localhost:3000` — never do that.
 
-> 🇳🇵 **सरल व्याख्या:** Frontend ले सधैं `/api` (सापेक्ष ठेगाना) मा बोलाउँछ — Nginx वा Vite ले त्यो अनुरोध सही backend मा पुर्‍याउँछ, त्यसैले frontend code लाई app कहाँ चल्छ (लोकल वा cloud) भन्ने थाहा हुनै पर्दैन।
+> 🇳🇵 **Saral Byakhya:** Frontend le sadhai `/api` (sapeksha thegana) ma bolaunchha — Nginx wa Vite le tyo anurodha sahi backend ma puryaunchha, tyasaile frontend code lai app kaha chalta cha (local wa cloud) bhanne thaha hunai pardaina.
 
 ---
 

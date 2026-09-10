@@ -29,7 +29,7 @@ HTTPS also:
 - Is required for forms, logins, and cookies
 - Is free via Let's Encrypt
 
-> 🇳🇵 **सरल व्याख्या:** A record भनेको domain नामलाई EC2 को IP सँग जोड्ने "फोनबुक entry" हो; Certbot ले त्यही domain को लागि निःशुल्क SSL प्रमाणपत्र दिन्छ जसले browser र server बीचको सबै data इन्क्रिप्ट गर्छ।
+> 🇳🇵 **Saral Byakhya:** A record bhaneko domain naam lai EC2 ko IP sanga jodne "phonebook entry" ho; Certbot le tyahi domain ko lagi nishulk SSL pramanpatra dinchha jasle browser ra server bichko sabai data encrypt garchha.
 
 ---
 

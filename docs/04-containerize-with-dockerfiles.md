@@ -29,7 +29,7 @@ Stage 2 (runtime): has ONLY the result → small, safe, fast to pull
 
 Backend: install deps in one stage, copy only `node_modules` + source into the slim runtime stage. Frontend: compile React in a Node stage, serve the static output with a tiny Nginx stage.
 
-> 🇳🇵 **सरल व्याख्या:** Multi-stage build भनेको एउटा ठूलो "रसोइया" image ले app बनाउँछ, तर अन्तिम image मा पकाएको तयारी खाना मात्र राखिन्छ — भारी औजारहरू customer लाई पठाइँदैन।
+> 🇳🇵 **Saral Byakhya:** Multi-stage build bhaneko euta thulo "rasoiya" image le app banaunchha, tara antim image ma pakaeko tayari khana matra rakhinchha — bhari aujharharu customer lai pathaidaina.
 
 ### ⚠️ The "last stage wins" gotcha
 
@@ -47,13 +47,13 @@ USER node        # official Node images ship this built-in user
 USER nginx       # Nginx images too
 ```
 
-> 🇳🇵 **सरल व्याख्या:** Container लाई सधैं "root" (सबैथोक गर्न सक्ने प्रयोगकर्ता) को रूपमा चलाउनु हुँदैन — हामी node/nginx जस्तै सीमित प्रयोगकर्ताले चलाउँछौं, ताकि कुनै आक्रमण भए पनि क्षति थोरै होस्।
+> 🇳🇵 **Saral Byakhya:** Container lai sadhai "root" (sabai thok garna sakne prayogkarta) ko rupma chalaunu hudaina — hami node/nginx jastai simit prayogkarta le chuplaunchhaum, taki kunai aakraman bhayepani kshati thorai hos.
 
 ### 🐛 The `localhost` vs `127.0.0.1` healthcheck trap
 
 Inside Alpine images, BusyBox `wget` may resolve `localhost` to the IPv6 address `::1` — but our servers listen on IPv4 (`0.0.0.0`). Result: *"connection refused"* even though the app is fine. **Always use `127.0.0.1` in healthchecks.**
 
-> 🇳🇵 **सरल व्याख्या:** `localhost` ले कहिलेकाहीँ IPv6 ठेगाना (::1) खोज्छ तर हाम्रो server IPv4 मा मात्र सुन्छ — त्यसैले स्वास्थ्य जाँचमा सधैं `127.0.0.1` प्रयोग गरिन्छ।
+> 🇳🇵 **Saral Byakhya:** `localhost` le kahilekahim IPv6 thegana (::1) khojchha tara hamro server IPv4 ma matra sunchha — tyasaile swasthya jachma sadhai `127.0.0.1` prayog garinchha.
 
 ---
 
@@ -188,7 +188,7 @@ server {
 | `try_files ... /index.html` | Lets React Router-style routes work on refresh |
 | `proxy_pass http://backend:3000` | `backend` is the Compose service name — Docker DNS resolves it (Milestone 5) |
 
-> 🇳🇵 **सरल व्याख्या:** Nginx ले browser को `/api` अनुरोध उठाएर backend container लाई पुर्‍याउँछ — user लाई backend को ठेगाना कहिल्यै थाहा दिँदैन।
+> 🇳🇵 **Saral Byakhya:** Nginx le browser ko `/api` anurodha uthaera backend container lai puryaunchha — user lai backend ko thegana kahilepani thaha diidaianna.
 
 ---
 

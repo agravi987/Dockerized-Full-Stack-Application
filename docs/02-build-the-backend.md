@@ -1,12 +1,12 @@
-# Milestone 2 — Build the Backend
+# ⚡ Milestone 2 — Build the Backend
 
-## Goal
+## 🎯 Goal
 
 Create the Node/Express API. It's a simple message board with two endpoints.
 
 ---
 
-## Step 1 — Initialize the Project
+## 📝 Step 1 — Initialize the Project
 
 ```powershell
 cd docker-fullstack-app\backend
@@ -15,7 +15,7 @@ npm install express pg dotenv cors
 npm install --save-dev nodemon
 ```
 
-| Package | Purpose |
+| 📦 Package | 🔧 Purpose |
 |---------|---------|
 | `express` | web framework (routes) |
 | `pg` | connect to PostgreSQL |
@@ -25,7 +25,7 @@ npm install --save-dev nodemon
 
 ---
 
-## Step 2 — Configure `package.json`
+## 📝 Step 2 — Configure `package.json`
 
 ```json
 {
@@ -38,11 +38,11 @@ npm install --save-dev nodemon
 }
 ```
 
-`"type": "module"` lets you use `import` instead of `require`.
+`"type": "module"` lets you use `import` instead of `require`. 🆕
 
 ---
 
-## Step 3 — Database Connection (`src/db.js`)
+## 📝 Step 3 — Database Connection (`src/db.js`)
 
 ```js
 import pg from "pg";
@@ -72,13 +72,13 @@ export async function initDb() {
 }
 ```
 
-### The key habit: environment variables
+### 🌟 The key habit: environment variables
 
-Every config value has an **environment variable with a default**. That one habit makes the same code run on your laptop, in Docker, and on EC2.
+Every config value has an **environment variable with a default**. That one habit makes the same code run on your laptop, in Docker, and on EC2. 🔑
 
 ---
 
-## Step 4 — The API (`src/index.js`)
+## 📝 Step 4 — The API (`src/index.js`)
 
 ```js
 import express from "express";
@@ -139,16 +139,16 @@ async function start() {
 start();
 ```
 
-### Two lines that matter in Docker
+### 🐛 Two lines that matter in Docker
 
-| Line | Reason |
+| 📖 Line | 🔍 Reason |
 |------|--------|
 | `app.listen(PORT, "0.0.0.0", ...)` | Inside a container, `localhost` means only that container. `0.0.0.0` exposes the API to the Docker network. |
 | `process.exit(1)` on failure | Makes the container exit so Docker can restart it later. |
 
 ---
 
-## Step 5 — Add `.gitignore` and `.dockerignore`
+## 📝 Step 5 — Add `.gitignore` and `.dockerignore`
 
 `backend/.gitignore`:
 ```
@@ -171,31 +171,31 @@ tests
 
 ---
 
-## Step 6 — Test Locally (Expect Failure)
+## 📝 Step 6 — Test Locally (Expect Failure 🧯)
 
 ```powershell
 node src/index.js
 ```
 
-Expected output — this is **correct**:
+Expected output — this is **correct** 🤔:
 ```
 Startup failed (is the database up?): ... ECONNREFUSED
 ```
 
-There's no database yet. Press `Ctrl+C`. In Milestone 5 you'll add the database container.
+There's no database yet. Press `Ctrl+C`. In Milestone 5 you'll add the database container. 🐘
 
 ---
 
-## Checkpoint
+## ✅ Checkpoint
 
 ```
-[ ] backend/package.json has "type": "module" + start/dev scripts
-[ ] db.js reads config from environment variables
-[ ] index.js has /api/health, GET + POST /api/messages
-[ ] app.listen uses 0.0.0.0
-[ ] .gitignore and .dockerignore exist
+[ ] ✔️ backend/package.json has "type": "module" + start/dev scripts
+[ ] ✔️ db.js reads config from environment variables
+[ ] ✔️ index.js has /api/health, GET + POST /api/messages
+[ ] ✔️ app.listen uses 0.0.0.0
+[ ] ✔️ .gitignore and .dockerignore exist
 ```
 
 ---
 
-**Next:** [Milestone 3 — Build the Frontend](03-build-the-frontend.md)
+➡️ **Next:** [Milestone 3 — Build the Frontend](03-build-the-frontend.md)

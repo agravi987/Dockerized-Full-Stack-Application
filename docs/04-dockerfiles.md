@@ -1,32 +1,32 @@
-# Milestone 4 — Dockerfiles
+# 📦 Milestone 4 — Dockerfiles
 
-## Goal
+## 🎯 Goal
 
-Turn the backend and frontend into Docker images using **multi-stage builds** and **non-root users**.
+Turn the backend and frontend into Docker images using **multi-stage builds** and **non-root users**. 🏗️
 
-## Background: Two patterns you must know
+## 🧠 Background: Two patterns you must know
 
-### Pattern 1 — Multi-stage builds
+### 🔄 Pattern 1 — Multi-stage builds
 
 ```
-Stage 1 (build):      full image with ALL tools → install, compile
-Stage 2 (runtime):    only the result            → small, safe
+Stage 1 (build):      full image with ALL tools → install, compile 🛠️
+Stage 2 (runtime):    only the result            → small, safe 🪶
 ```
 
-The backend image ends up ~180 MB. The frontend ~80 MB. Without multi-stage they'd be over 1 GB.
+The backend image ends up ~180 MB. The frontend ~80 MB. Without multi-stage they'd be over 1 GB. 💾
 
-### Pattern 2 — Non-root users
+### 👤 Pattern 2 — Non-root users
 
-Containers default to running as `root`. If your app is attacked, the attacker has root. One line fixes it:
+Containers default to running as `root` 👑. If your app is attacked, the attacker has root. One line fixes it:
 
 ```dockerfile
-USER node      # a normal user that ships inside Node images
-USER nginx     # a normal user inside Nginx images
+USER node      # a normal user that ships inside Node images 🙋
+USER nginx     # a normal user inside Nginx images 🙋
 ```
 
 ---
 
-## Step 1 — Backend Dockerfile (`backend/Dockerfile`)
+## 📝 Step 1 — Backend Dockerfile (`backend/Dockerfile`)
 
 ```dockerfile
 # Stage 1 — deps: full install (fast rebuilds via layer cache)
@@ -66,26 +66,26 @@ EXPOSE 3000
 CMD ["npm", "run", "dev"]
 ```
 
-### Build it — and note the `--target`
+### 🏗️ Build it — and note the `--target`
 
 ```powershell
 cd docker-fullstack-app\backend
 docker build --target runtime -t fullstack-backend:1.0 .
 ```
 
-**Important:** the `dev` stage is written LAST, and Docker defaults to the last stage. So you must always say `--target runtime` when building the production image. This is the single most confusing thing about Dockerfiles — now you know it.
+**⚠️ Important:** the `dev` stage is written LAST, and Docker defaults to the last stage. So you must always say `--target runtime` when building the production image. This is the single most confusing thing about Dockerfiles — now you know it. 🧠
 
 Verify:
 ```powershell
 docker images fullstack-backend     # ~180MB
-docker run --rm fullstack-backend:1.0 whoami   # prints "node" → non-root
+docker run --rm fullstack-backend:1.0 whoami   # prints "node" → non-root ✅
 ```
 
 ---
 
-## Step 2 — Nginx Config for the Frontend (`frontend/nginx.conf`)
+## 📝 Step 2 — Nginx Config for the Frontend (`frontend/nginx.conf`)
 
-The React build is static files. Nginx serves them AND forwards `/api` calls to the backend container.
+The React build is static files. Nginx serves them AND forwards `/api` calls to the backend container. 🔀
 
 ```nginx
 server {
@@ -113,11 +113,11 @@ server {
 }
 ```
 
-`proxy_pass http://backend:3000` — `backend` is the Compose service name. Docker's DNS resolves it (Milestone 5).
+`proxy_pass http://backend:3000` — `backend` is the Compose service name. Docker's DNS resolves it. 🌐
 
 ---
 
-## Step 3 — Frontend Dockerfile (`frontend/Dockerfile`)
+## 📝 Step 3 — Frontend Dockerfile (`frontend/Dockerfile`)
 
 ```dockerfile
 # Stage 1 — build: compile React to static files
@@ -158,7 +158,7 @@ EXPOSE 5173
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 ```
 
-### Build it:
+### 🏗️ Build it:
 
 ```powershell
 cd docker-fullstack-app\frontend
@@ -168,7 +168,7 @@ docker images fullstack-frontend     # ~80MB
 
 ---
 
-## Clean up your test containers/images
+## 🧹 Clean up your test containers/images
 
 ```powershell
 docker system prune
@@ -176,17 +176,17 @@ docker system prune
 
 ---
 
-## Checkpoint
+## ✅ Checkpoint
 
 ```
-[ ] backend/Dockerfile: deps, prod-deps, runtime, and dev stages (all named)
-[ ] frontend/Dockerfile: build, serve, and dev stages (all named)
-[ ] frontend/nginx.conf proxies /api/ to http://backend:3000
-[ ] Images built with --target runtime / --target serve
-[ ] Backend ~180MB, frontend ~80MB
-[ ] Backend runs as "node"; frontend as "nginx"
+[ ] ✔️ backend/Dockerfile: deps, prod-deps, runtime, and dev stages (all named)
+[ ] ✔️ frontend/Dockerfile: build, serve, and dev stages (all named)
+[ ] ✔️ frontend/nginx.conf proxies /api/ to http://backend:3000
+[ ] ✔️ Images built with --target runtime / --target serve
+[ ] ✔️ Backend ~180MB, frontend ~80MB
+[ ] ✔️ Backend runs as "node"; frontend as "nginx"
 ```
 
 ---
 
-**Next:** [Milestone 5 — Networks & Volumes](05-networks-and-volumes.md)
+➡️ **Next:** [Milestone 5 — Networks & Volumes](05-networks-and-volumes.md)

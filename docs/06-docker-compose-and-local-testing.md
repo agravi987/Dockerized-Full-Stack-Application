@@ -1,16 +1,16 @@
-# Milestone 6 — Docker Compose & Local Testing
+# 🎼 Milestone 6 — Docker Compose & Local Testing
 
-## Goal
+## 🎯 Goal
 
-Replace all manual `docker run` commands with **one file** — the whole stack starts with one command. This is **Production mode** (the thing you'll deploy to EC2).
+Replace all manual `docker run` commands with **one file** — the whole stack starts with one command. This is **Production mode** 🚀 (the thing you'll deploy to EC2).
 
 ---
 
-## What Compose Does
+## 🧠 What Compose Does
 
-Compose turns every manual flag you used in Milestone 5 into plain text:
+Compose turns every manual flag you used in Milestone 5 into plain text: 📝
 
-| Manual (Milestone 5) | Compose |
+| Manual (Milestone 5) 🖐️ | Compose 📄 |
 |----------------------|---------|
 | `docker network create` | done automatically |
 | `docker run --network app-net` | a `services:` block |
@@ -20,9 +20,9 @@ Compose turns every manual flag you used in Milestone 5 into plain text:
 
 ---
 
-## Step 1 — Database Init Script
+## 📝 Step 1 — Database Init Script
 
-Create `database/init.sql`:
+Create `database/init.sql`: 🐘
 
 ```sql
 CREATE TABLE IF NOT EXISTS messages (
@@ -33,13 +33,13 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 ```
 
-This runs the first time the database starts with an empty volume.
+This runs the first time the database starts with an empty volume. 🚀
 
 ---
 
-## Step 2 — Environment Files
+## 📝 Step 2 — Environment Files
 
-Secrets go in `.env`, never in code or Compose files.
+Secrets go in `.env`, never in code or Compose files. 🔐
 
 Create `.env.example` (this one IS committed to Git):
 
@@ -57,7 +57,7 @@ DB_USER=appuser
 DB_PASSWORD=change_me_please
 ```
 
-Create your real `.env` (git-ignored):
+Create your real `.env` (git-ignored): 🙈
 
 ```powershell
 Copy-Item .env.example .env
@@ -68,13 +68,13 @@ Copy-Item .env.example .env
 
 ---
 
-## Step 3 — Write `docker-compose.yml`
+## 📝 Step 3 — Write `docker-compose.yml`
 
-At the project root (`docker-fullstack-app/`):
+At the project root (`docker-fullstack-app/`): 📄
 
 ```yaml
 services:
-  # Database — NEVER exposed to the host
+  # 🐘 Database — NEVER exposed to the host
   db:
     image: postgres:16-alpine
     environment:
@@ -91,7 +91,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Backend — talks to db by service name
+  # ⚡ Backend — talks to db by service name
   backend:
     build:
       context: ./backend
@@ -110,7 +110,7 @@ services:
       - "3000:3000"
     restart: unless-stopped
 
-  # Frontend — Nginx serves the app + proxies /api
+  # 🎨 Frontend — Nginx serves the app + proxies /api
   frontend:
     build:
       context: ./frontend
@@ -125,9 +125,9 @@ volumes:
   db-data:
 ```
 
-### What each part means
+### 🧩 What each part means
 
-| Config | Why |
+| ⚙️ Config | 🔍 Why |
 |--------|-----|
 | `image: postgres:16-alpine` | Stock DB image — no Dockerfile needed |
 | `./database/init.sql:...` | Auto-runs the schema on first boot |
@@ -141,26 +141,26 @@ volumes:
 
 ---
 
-## Step 4 — Launch the Whole Stack
+## 📝 Step 4 — Launch the Whole Stack
 
 ```powershell
 docker compose up --build
 ```
 
-Watch the sequence:
+Watch the sequence: 🎬
 ```
-✔ Network docker-fullstack-app_default    Created
-✔ Volume docker-fullstack-app_db-data     Created
-✔ Container ...-db-1       Healthy
-✔ Container ...-backend-1  Started        ← waited for db health
-✔ Container ...-frontend-1 Started
+✔️ Network docker-fullstack-app_default    Created
+✔️ Volume docker-fullstack-app_db-data     Created
+✔️ Container ...-db-1       Healthy
+✔️ Container ...-backend-1  Started        ← waited for db health
+✔️ Container ...-frontend-1 Started
 ```
 
 ---
 
-## Step 5 — Verify Everything
+## 📝 Step 5 — Verify Everything
 
-In a second PowerShell window:
+In a second PowerShell window: 🪟
 
 ```powershell
 docker compose ps       # all three should show Up (healthy)
@@ -177,26 +177,26 @@ curl -X POST http://localhost:8080/api/messages `
 curl http://localhost:8080/api/messages
 ```
 
-Open **http://localhost:8080** and send a message through the UI. Your whole app runs from one file.
+Open **http://localhost:8080** and send a message through the UI. Your whole app runs from one file. 🎉
 
 ---
 
-## Step 6 — The Compose Lifecycle
+## 📝 Step 6 — The Compose Lifecycle
 
 ```powershell
-docker compose ps                    # status
-docker compose logs -f               # follow all logs (Ctrl+C stops)
-docker compose logs backend          # one service's logs
-docker compose stop                  # stop, keep containers
-docker compose start                 # restart them
-docker compose down                  # stop + remove containers — VOLUME KEPT
+docker compose ps                    # 🩺 status
+docker compose logs -f               # 📜 follow all logs (Ctrl+C stops)
+docker compose logs backend          # 📜 one service's logs
+docker compose stop                  # ⏹️ stop, keep containers
+docker compose start                 # ▶️ restart them
+docker compose down                  # 🧹 stop + remove containers — VOLUME KEPT
 docker compose down -v               # ⚠️ also deletes the database volume
-docker compose up --build -d         # rebuild + run in background
+docker compose up --build -d         # 🏗️ rebuild + run in background
 ```
 
 ---
 
-## Step 7 — Prove Data Persists
+## 📝 Step 7 — Prove Data Persists
 
 ```powershell
 # 1. Add a message
@@ -212,11 +212,11 @@ docker compose up -d
 curl http://localhost:8080/api/messages
 ```
 
-The message survives. The `db-data` volume did its job.
+The message survives. The `db-data` volume did its job. 💾✨
 
 ---
 
-## Debugging (when something breaks)
+## 🧯 Debugging (when something breaks)
 
 ```text
 1. docker compose ps                    → who is up / restarting / unhealthy?
@@ -225,9 +225,9 @@ The message survives. The `db-data` volume did its job.
 4. docker compose up -d --force-recreate X   → recreate a stuck container
 ```
 
-### Common errors
+### ⚠️ Common errors
 
-| Error | Cause | Fix |
+| 💥 Error | 🔍 Cause | 🛠️ Fix |
 |-------|-------|-----|
 | `port is already allocated` | Something owns 8080 | `docker ps` and stop it, or change to `"8081:8080"` |
 | backend keeps restarting | DB not ready or env mismatch | Check logs; ensure POSTGRES_PASSWORD = DB_PASSWORD |
@@ -237,17 +237,17 @@ The message survives. The `db-data` volume did its job.
 
 ---
 
-## Checkpoint
+## ✅ Checkpoint
 
 ```
-[ ] .env created from .env.example with a strong password
-[ ] docker compose up --build starts all three services
-[ ] db shows (healthy), backend starts after it
-[ ] App works at http://localhost:8080
-[ ] Data survives docker compose down
-[ ] You know the loop: up --build → curl → check logs
+[ ] ✔️ .env created from .env.example with a strong password
+[ ] ✔️ docker compose up --build starts all three services
+[ ] ✔️ db shows (healthy), backend starts after it
+[ ] ✔️ App works at http://localhost:8080
+[ ] ✔️ Data survives docker compose down
+[ ] ✔️ You know the loop: up --build → curl → check logs
 ```
 
 ---
 
-**Next:** [Milestone 7 — Dev Mode](07-dev-mode.md)
+➡️ **Next:** [Milestone 7 — Dev Mode](07-dev-mode.md)

@@ -1,12 +1,12 @@
-# Milestone 3 — Build the Frontend
+# 🎨 Milestone 3 — Build the Frontend
 
-## Goal
+## 🎯 Goal
 
-Create the React app. It calls the backend using **relative `/api` URLs** — this one decision makes the same code work everywhere.
+Create the React app. It calls the backend using **relative `/api` URLs** — this one decision makes the same code work everywhere. 🌍
 
 ---
 
-## Step 1 — Scaffold a Vite React App
+## 📝 Step 1 — Scaffold a Vite React App
 
 ```powershell
 cd docker-fullstack-app
@@ -17,7 +17,7 @@ npm install
 
 ---
 
-## Step 2 — The UI (`src/App.jsx`)
+## 📝 Step 2 — The UI (`src/App.jsx`)
 
 ```jsx
 import { useState, useEffect } from "react";
@@ -88,7 +88,7 @@ export default function App() {
 }
 ```
 
-And `src/App.css`:
+And `src/App.css` 🌈:
 
 ```css
 .container {
@@ -107,20 +107,20 @@ li { margin: 0.5rem 0; }
 
 ---
 
-## Step 3 — The Critical Detail: Relative `/api` URLs
+## 🔑 Step 3 — The Critical Detail: Relative `/api` URLs
 
-Notice `fetch("/api/messages")` — **no host, no port**.
+Notice `fetch("/api/messages")` — **no host, no port**. 🤫
 
 ```
-Dev:        Vite dev server proxies /api → backend    (Milestone 7)
-Production: Nginx proxies /api → backend              (Milestone 4)
+🧪 Dev:        Vite dev server proxies /api → backend    (Milestone 7)
+🚀 Production: Nginx proxies /api → backend              (Milestone 4)
 ```
 
-Your frontend code **never changes** between environments. Beginners hardcode `http://localhost:3000` — don't.
+Your frontend code **never changes** between environments. Beginners hardcode `http://localhost:3000` — don't. ⚠️
 
 ---
 
-## Step 4 — Vite Proxy (`vite.config.js`)
+## 📝 Step 4 — Vite Proxy (`vite.config.js`)
 
 ```js
 import { defineConfig } from "vite";
@@ -139,14 +139,14 @@ export default defineConfig({
 });
 ```
 
-| Context | Proxy target |
+| 🖥️ Context | 🎯 Proxy target |
 |---------|--------------|
 | Local dev on your laptop | `http://localhost:3000` |
 | Inside Docker (dev mode) | `http://backend:3000` |
 
 ---
 
-## Step 5 — Add `.dockerignore`
+## 📝 Step 5 — Add `.dockerignore`
 
 `frontend/.dockerignore`:
 ```
@@ -162,25 +162,25 @@ Dockerfile
 
 ---
 
-## Step 6 — Test Locally
+## 📝 Step 6 — Test Locally
 
 ```powershell
 npm run dev
 ```
 
-Open **http://localhost:5173** — the page renders with an error banner about the API. That's expected; there's no backend running.
+Open **http://localhost:5173** — the page renders with an error banner about the API. That's expected; there's no backend running. 🎭
 
 ---
 
-## Checkpoint
+## ✅ Checkpoint
 
 ```
-[ ] npm run dev renders the app
-[ ] App.jsx uses fetch("/api/...") with NO hardcoded host
-[ ] vite.config.js proxies /api
-[ ] frontend/.dockerignore exists
+[ ] ✔️ npm run dev renders the app
+[ ] ✔️ App.jsx uses fetch("/api/...") with NO hardcoded host
+[ ] ✔️ vite.config.js proxies /api
+[ ] ✔️ frontend/.dockerignore exists
 ```
 
 ---
 
-**Next:** [Milestone 4 — Dockerfiles](04-dockerfiles.md)
+➡️ **Next:** [Milestone 4 — Dockerfiles](04-dockerfiles.md)

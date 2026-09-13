@@ -1,89 +1,62 @@
-# Milestone 9 — 🌤️ Deploy to EC2
+# Milestone 9 — Deploy to EC2
 
-> **Last Updated:** September 10, 2026
+## Goal
+
+Take the images you pushed in Milestone 8 and run them on an Amazon EC2 server, reachable from anywhere.
 
 ---
 
-## 🎯 Goal
+## The Plan
 
-Move the stack from your laptop to a real Linux server on AWS EC2 — reachable from anywhere in the world.
-
-## ✅ Prerequisites
-
-```text
-[ ] ✅ Milestones 1–8 (working stack in Docker Desktop)
-[ ] 📧 AWS account (aws.amazon.com — free tier eligible)
-[ ] 🔑 A domain is optional for this milestone (Milestone 10 adds it)
+```
+Your images (Docker Hub) ──pull──▶ EC2 server (Ubuntu + Docker) ──▶ http://<public-ip>
 ```
 
----
-
-## 🧠 Why EC2
-
-EC2 is a virtual machine in AWS's cloud. It runs Ubuntu, where Docker is a first-class citizen — exactly what your stack needs. It's also the most common "I deployed Docker to a server" interview story.
-
-> 🇳🇵 **Saral Byakhya:** Security group bhaneko EC2 ko aago parkhaal ho — kun port (22, 80, 443) kasle kholna paunchha bhanne niyam. SSH (22) lai tapaiko aafnai IP ma matra kholnu buddhimani ho.
+On EC2 you do NOT rebuild images from source. You **pull the ready-made images** you pushed. That's the point of Docker Hub.
 
 ---
 
-## 📝 Step 1 — Launch the Instance
+## Step 1 — Launch the Instance
 
-1. AWS Console → **EC2 Dashboard** → **Launch Instance**
-
+1. AWS Console → **EC2** → **Launch Instance**
 2. **Name:** `docker-fullstack-app`
+3. **OS image (AMI):** Ubuntu 24.04 LTS (Free tier eligible)
+4. **Instance type:** `t2.micro` (free tier: 1 vCPU, 1 GB RAM)
+5. **Key pair:** Create new → name it `docker-app-key` → download the `.pem` — **you can't download it again** → save to `C:\Users\<you>\.ssh\docker-app-key.pem`
+6. **Network settings / Security group:**
 
-3. **AMI (OS):** Ubuntu Server 24.04 LTS (Free tier eligible)
+| Type | Port | Source | Purpose |
+|------|------|--------|---------|
+| SSH | 22 | My IP | log in (restricted to your IP) |
+| Custom TCP | 8080 | 0.0.0.0/0 | website traffic (Milestone 10 moves it to port 80) |
 
-4. **Instance type:** `t2.micro` (Free tier — 1 vCPU, 1 GB RAM)
-   > ⚠️ 1 GB RAM is tight. If you see out-of-memory errors, move up to `t2.small` (2 GB, ~$0.023/hr).
+7. **Configure storage:** 12 GB (free tier gives you 30)
+8. Click **Launch Instance** and wait 2-3 minutes.
 
-5. **Key pair:** Create a new one
-   - Name: `docker-app-key`
-   - Download the `.pem` file — **you cannot download it again**
-   - Save it to `C:\Users\YourName\.ssh\docker-app-key.pem`
-
-6. **Network settings — Security Group:**
-
-   | Type | Port | Source | Purpose |
-   |------|------|--------|---------|
-   | SSH | 22 | My IP | Secure shell access |
-   | HTTP | 80 | 0.0.0.0/0 | Website traffic (add now; used in Milestone 10) |
-   | HTTPS | 443 | 0.0.0.0/0 | Secure traffic (add now) |
-
-7. **Storage:** 12 GB (default). Free tier gives you 30 GB.
-
-8. Click **Launch Instance**. Wait 2–3 minutes for initialization.
+> 💡 If you ever get "out of memory" on this size, `t2.small` (2 GB RAM) costs ~$0.023/hr.
 
 ---
 
-## 📝 Step 2 — Connect via SSH
+## Step 2 — Connect via SSH
 
 From PowerShell:
 
 ```powershell
-cd C:\Users\YourName\.ssh
+cd C:\Users\<you>\.ssh
 ssh -i "docker-app-key.pem" ubuntu@<YOUR_EC2_PUBLIC_IP>
 ```
 
-Find the public IP in EC2 Console → **Instance summary** → **Public IPv4 address**.
-
-Accept the fingerprint with `yes`. You should see:
-
-```
-Welcome to Ubuntu 24.04.x LTS ...
-ubuntu@ip-172-31-xx-xx:~$
-```
+Find the public IP in EC2 Console → your instance → **Public IPv4 address**. Type `yes` for the fingerprint. You should see a `ubuntu@ip-...` prompt.
 
 ---
 
-## 📝 Step 3 — Install Docker on EC2
+## Step 3 — Install Docker on EC2
 
 Run **one command at a time**:
 
 ```bash
 sudo apt-get update
 sudo apt-get upgrade -y
-
 sudo apt-get install -y ca-certificates curl gnupg
 
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -96,168 +69,162 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 sudo usermod -aG docker $USER
-newgrp docker   # apply group change for this session
+newgrp docker
 ```
 
 Verify:
-
 ```bash
-docker --version       # Docker version 27.x.x
-docker compose version # Docker Compose version v2.x.x
+docker --version        # 27.x
+docker compose version  # v2.x
 ```
 
 ---
 
-## 📝 Step 4 — Get Your Code onto EC2
-
-**Option A — Git (recommended):** push the repo first, then:
+## Step 4 — Login to Docker Hub and Pull
 
 ```bash
-git clone https://github.com/yourusername/docker-fullstack-app.git
-cd docker-fullstack-app
-```
-
-**Option B — SCP (from your laptop):**
-
-```powershell
-scp -i "C:\Users\YourName\.ssh\docker-app-key.pem" -r "D:\docker-fullstack-app\*" ubuntu@<YOUR_EC2_PUBLIC_IP>:~/docker-fullstack-app
+docker login
+docker pull <your-dockerhub-username>/fullstack-backend:latest
+docker pull <your-dockerhub-username>/fullstack-frontend:latest
 ```
 
 ---
 
-## 📝 Step 5 — Set Up `.env` on the Server
+## Step 5 — Create the Compose File on the Server
+
+Now write a compose file that uses the **pulled images** (not local builds):
 
 ```bash
+mkdir ~/docker-fullstack-app
 cd ~/docker-fullstack-app
-
-cp .env.example .env
-nano .env
+nano docker-compose.yml
 ```
 
-Set the SAME strong password for `POSTGRES_PASSWORD` and `DB_PASSWORD`. Use a fresh, strong value — not your dev laptop password.
+Paste this (change the username):
 
-> ⚠️ Never commit this file. `.env` is git-ignored; only `.env.example` is in the repo.
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: <STRONG-PASSWORD>
+      POSTGRES_DB: appdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    image: <your-dockerhub-username>/fullstack-backend:latest
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: appuser
+      DB_PASSWORD: <STRONG-PASSWORD>
+      DB_NAME: appdb
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    image: <your-dockerhub-username>/fullstack-frontend:latest
+    depends_on:
+      - backend
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  db-data:
+```
+
+Notes:
+- Same `<STRONG-PASSWORD>` for both `POSTGRES_PASSWORD` and `DB_PASSWORD` (they must match).
+- The database has **no public port** — only the frontend on port 8080 is public.
+- Milestone 10 removes the `:8080` from the URL with a host Nginx on port 80.
+
+Exit and save: `Ctrl+X`, `Y`, `Enter`.
 
 ---
 
-## 📝 Step 6 — Deploy!
+## Step 6 — Run It!
 
 ```bash
-docker compose up --build -d
+docker compose up -d
 ```
 
 Verify:
-
 ```bash
 docker compose ps
-# db / backend / frontend — Up (healthy)
+# db / backend / frontend — all Up (healthy)
 
-# From the server itself:
-curl http://localhost:8080/api/health
-
-curl -X POST http://localhost:8080/api/messages \
-  -H "Content-Type: application/json" \
-  -d '{"name":"EC2","message":"Deployed!"}'
-
-curl http://localhost:8080/api/messages
+curl http://localhost/api/health
+curl -X POST http://localhost/api/messages -H "Content-Type: application/json" -d '{"name":"EC2","message":"Deployed!"}'
+curl http://localhost/api/messages
 ```
 
 ---
 
-## 📝 Step 7 — Open It in the Browser
+## Step 7 — Open It in the Browser
 
-`http://<YOUR_EC2_PUBLIC_IP>:8080`
+Go to **http://<YOUR_EC2_PUBLIC_IP>:8080** — your app is live worldwide.
 
-> 💡 If it doesn't load:
-> 1. Did you allow inbound **8080** in the security group? (Add a temporary rule if needed.)
-> 2. `docker compose ps` — all Up?
-> 3. `docker compose logs` for errors.
-
----
-
-## 📝 Step 8 — Serve It on Port 80 (No `:8080`)
-
-People shouldn't type ports. Install a host-level Nginx as the front door:
-
-```bash
-sudo apt-get install -y nginx
-sudo nano /etc/nginx/sites-available/default
-```
-
-Replace the file contents:
-
-```nginx
-server {
-    listen 80;
-    server_name _;
-
-    location / {
-        proxy_pass http://127.0.0.1:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-```bash
-sudo nginx -t                  # test the config
-sudo systemctl restart nginx
-```
-
-Now visit:
-
-```
-http://<YOUR_EC2_PUBLIC_IP>
-```
-
-No port number. 👍
+If it doesn't load:
+1. `docker compose ps` — all Up?
+2. `docker compose logs --tail 50` — any errors?
+3. Security group allows port 8080 from `0.0.0.0/0`?
 
 ---
 
-## 📝 Step 9 — Useful Server Maintenance Commands
+## Step 8 — Server Maintenance Commands
 
 ```bash
 cd ~/docker-fullstack-app
 
-docker compose ps                                  # status
-docker compose logs --tail 100 backend             # what happened
-docker compose up --build -d                       # deploy new code
-docker compose down                                # stop (data kept)
-docker system prune -f                             # clean dead containers/images
+docker compose ps                          # status
+docker compose logs --tail 100 backend     # what happened
+docker system prune -f                     # clean dead containers/images
+docker compose up -d                       # restart after a reboot-crash
+```
 
-# Update code (if using git):
-git pull
-docker compose up --build -d
+To update the app later: re-pull the new image and recreate.
+
+```bash
+docker compose pull
+docker compose up -d
 ```
 
 ---
 
-## ✅ Checkpoint
+## Checkpoint
 
-```text
-[ ] EC2 instance launched (Ubuntu 24.04, t2.micro, key pair saved)
-[ ] Security group: SSH(22) + HTTP(80) + HTTPS(443), SSH locked to My IP
-[ ] Docker + Compose installed and verified on the server
-[ ] Code on the server via git clone or scp
-[ ] docker compose up --build -d → all three Up (healthy)
-[ ] App reachable at http://<PUBLIC_IP>:8080
-[ ] Host Nginx proxies port 80 → 8080 → http://<PUBLIC_IP> works
+```
+[ ] EC2 launched (Ubuntu 24.04, t2.micro, key pair saved)
+[ ] Security group: SSH(22) to My IP, Custom TCP 8080 public
+[ ] Docker + Compose installed on the server
+[ ] Images pulled from YOUR Docker Hub account
+[ ] docker compose up -d → all Up (healthy)
+[ ] App live at http://<PUBLIC_IP>:8080
 ```
 
 ---
 
-## 💡 Troubleshooting on a Fresh Server
+## Troubleshooting on a Fresh Server
 
-| Error | Likely cause | Fix |
-|-------|--------------|-----|
-| Browser can't reach `:8080` | Security group | Add inbound rule for 8080 (temporarily) |
-| `permission denied while trying to connect to the Docker daemon` socket | User not in docker group (yet) | `newgrp docker` or re-login |
-| `docker compose` not found | Plugin not installed | Reinstall `docker-compose-plugin` |
-| Backend crash-loops | `.env` password mismatch | Make POSTGRES_PASSWORD = DB_PASSWORD, then `down -v && up -d` |
-| Server slow / apps killed | 1 GB RAM too small | Stop t2.micro, launch t2.small |
+| Error | Cause | Fix |
+|-------|-------|-----|
+| Can't reach the site | Security group missing port 8080 | Add Custom TCP 8080 inbound from 0.0.0.0/0 |
+| `permission denied while trying to connect to the Docker daemon` | User not in docker group | `newgrp docker` or log out/in |
+| Backend crash-loops | Password mismatch | Make POSTGRES_PASSWORD = DB_PASSWORD, then `down -v && up -d` |
+| `docker: command not found` | Docker install incomplete | Re-run Step 3 commands |
 
 ---
 
-**Next:** [Milestone 10 — Domain Name & HTTPS](10-domain-and-https.md) →
+**Next:** [Milestone 10 — Domain & HTTPS](10-domain-and-https.md) *(optional)*

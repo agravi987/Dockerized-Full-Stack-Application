@@ -1,93 +1,68 @@
-# Milestone 10 — 🌐 Domain Name & HTTPS
+# Milestone 10 — Domain & HTTPS *(optional)*
 
-> **Last Updated:** September 10, 2026
+## Goal
+
+Give your EC2 deployment a real domain name and a free SSL certificate.
 
 ---
 
-## 🎯 Goal
+## The Idea
 
-Give your EC2 deployment a real domain name and a free SSL certificate — the final pieces between "IP address demo" and "actual website".
+```
+http://12.34.56.78        → looks like a dev toy
+https://yourdomain.com    → looks like a product
+```
 
-## ✅ Prerequisites
+HTTPS also removes the browser's "Not Secure" warning and is free via Let's Encrypt.
 
-```text
-[ ] ✅ Milestone 9 (app live at http://<PUBLIC_IP> on port 80)
-[ ] 💳 A domain registrar account (or ~$10/year)
+---
+
+## Step 1 — Buy a Domain
+
+Any registrar works — Namecheap, Cloudflare, Porkbun, GoDaddy. Pick any cheap `.com` / `.app` / `.site` / `.dev` you like.
+
+---
+
+## Step 2 — Point the Domain at Your EC2 IP
+
+In the registrar's **DNS settings**, add two A records:
+
+| Type | Name | Value |
+|------|------|-------|
+| A | @ | YOUR_EC2_PUBLIC_IP |
+| A | www | YOUR_EC2_PUBLIC_IP |
+
+```
+@        → yourdomain.com      → EC2 IP
+www      → www.yourdomain.com  → EC2 IP
 ```
 
 ---
 
-## 🧠 Why a Domain + HTTPS
+## Step 3 — Wait for DNS to Take Effect
 
-```text
-http://52.15.44.201        →  looks like a dev toy
-https://fullstack.app      →  looks like a product
-```
-
-HTTPS also:
-- Removes the browser's "Not Secure" warning
-- Is required for forms, logins, and cookies
-- Is free via Let's Encrypt
-
-> 🇳🇵 **Saral Byakhya:** A record bhaneko domain naam lai EC2 ko IP sanga jodne "phonebook entry" ho; Certbot le tyahi domain ko lagi nishulk SSL pramanpatra dinchha jasle browser ra server bichko sabai data encrypt garchha.
-
----
-
-## 📝 Step 1 — Buy a Domain
-
-Any registrar works — pick the cheapest TLD for learning:
-
-| Registrar | Notes |
-|-----------|-------|
-| Namecheap | Cheap, beginner-friendly |
-| Cloudflare | Sells domains at-cost, free DNS/CDN on top |
-| Porkbun | Cheap renewals |
-
-Good learning choices: `yourname.app`, `mydockerapp.site`, or any `<something>.dev` / `.com` you like.
-
----
-
-## 📝 Step 2 — Point the Domain at EC2
-
-In the registrar's **DNS settings**, create these records:
-
-| Type | Name | Value | TTL |
-|------|------|-------|-----|
-| A | @ | YOUR_EC2_PUBLIC_IP | 300 |
-| A | www | YOUR_EC2_PUBLIC_IP | 300 |
-
-```text
-@        → yourdomain.com     → EC2 public IP
-www      → www.yourdomain.com → EC2 public IP
-```
-
-> 💡 Some registrars use `@`, others a blank field. Goal: both the bare domain and `www` resolve to your EC2 IP.
-
-**Optional but recommended:** Cloudflare as your DNS. Point the domain's nameservers at Cloudflare, add the same two A records there, and you get free CDN + extra features later.
-
----
-
-## 📝 Step 3 — Wait for DNS Propagation
-
-From your laptop (PowerShell):
+From your laptop:
 
 ```powershell
 nslookup yourdomain.com
 ```
 
-Expected: the `Address` line returns your EC2 public IP.
-
-Propagation usually takes under 30 minutes but can take up to 48 hours. If it's slow, be patient — or speed it up by setting your computer's DNS to `1.1.1.1` or `8.8.8.8`.
+The `Address:` line should return your EC2 public IP. Usually under 30 minutes, can take up to 48 hours.
 
 ---
 
-## 📝 Step 4 — Tell Host Nginx the New Domain
+## Step 4 — Set Up Server-Side Nginx (host-level)
 
-SSH into EC2 and update the host Nginx so it answers only for your domain:
+Your app runs on the EC2 host. Install a host Nginx as the front door so a domain maps to your containers:
 
 ```bash
+# SSH into EC2
+sudo apt-get install -y nginx
+
 sudo nano /etc/nginx/sites-available/default
 ```
+
+Replace the file contents:
 
 ```nginx
 server {
@@ -99,7 +74,6 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
@@ -113,95 +87,68 @@ Visit `http://yourdomain.com` — it should load your app.
 
 ---
 
-## 📝 Step 5 — Install Certbot for Free SSL
+## Step 5 — Get Free SSL with Let's Encrypt
 
 ```bash
 sudo apt-get install -y certbot python3-certbot-nginx
-```
-
----
-
-## 📝 Step 6 — Issue the Certificate
-
-```bash
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
 
 Answer the prompts:
-
-```text
-Enter email            → for renewal notices
+```
+Enter email            → your email (renewal notices)
 TOS                    → agree
-Share email with EFF?  → N is fine
-HTTP → HTTPS redirect? → 2 “Redirect” (recommended)
+Share email with EFF?  → N
+HTTP → HTTPS redirect? → 2 (Redirect)
 ```
 
-Certbot automatically:
-1. Verifies you own the domain (via DNS + HTTP challenge)
-2. Installs the certificate into Nginx
-3. Configures HTTPS + redirect
-4. Sets up auto-renewal
+Certbot automatically verifies the domain, installs the certificate into Nginx, enables HTTPS + redirect, and sets up auto-renewal.
 
 ---
 
-## 📝 Step 7 — Verify Everything
+## Step 6 — Verify
 
-Visit **https://yourdomain.com** — you should see the padlock 🔒.
-
-```bash
-# Confirm the cert:
-sudo certbot certificates
-
-# Confirm renewal works:
-sudo certbot renew --dry-run
-```
-
-Both domains redirect:
+Visit **https://yourdomain.com** — you should see a padlock.
 
 ```bash
-curl -sI http://yourdomain.com | head -5
-# HTTP/1.1 301 Moved Permanently  → Location: https://yourdomain.com/...
+sudo certbot certificates          # see your cert
+sudo certbot renew --dry-run       # confirm auto-renewal works
 ```
 
 ---
 
-## 📝 Step 8 — Final Security Group
-
-Your EC2 security group should now be:
+## Final Security Group
 
 | Type | Port | Source | Purpose |
 |------|------|--------|---------|
-| SSH | 22 | My IP | Remote access (restricted) |
-| HTTP | 80 | 0.0.0.0/0 | Receives requests → redirects to HTTPS |
-| HTTPS | 443 | 0.0.0.0/0 | Secure traffic |
+| SSH | 22 | My IP | remote access |
+| HTTP | 80 | 0.0.0.0/0 | redirects to HTTPS |
+| HTTPS | 443 | 0.0.0.0/0 | secure traffic |
 
-Remove any temporary `8080` rule you added during Milestone 9 — the public never reaches the app container directly anymore.
+Remove the temporary `8080` rule from Milestone 9 — the public now reaches the app only through the host Nginx on port 80.
 
 ---
 
-## ✅ Checkpoint
+## Checkpoint
 
-```text
-[ ] A records point @ and www to your EC2 IP; nslookup confirms
-[ ] Host Nginx server_name is your real domain
-[ ] certbot --nginx succeeded with NO errors
+```
+[ ] A records point @ and www to your EC2 IP
+[ ] http://yourdomain.com loads the app
 [ ] https://yourdomain.com loads with a padlock
-[ ] http://yourdomain.com redirects to https
-[ ] certbot renew --dry-run passes (auto-renewal working)
-[ ] Port 8080 rule removed from the security group
+[ ] http → https redirect works
+[ ] certbot renew --dry-run passes
 ```
 
 ---
 
-## 💡 Troubleshooting
+## Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
-| DNS not resolving | Propagation/typo | `nslookup` again; check A records; change resolver to 1.1.1.1 |
-| Certbot "unable to verify domain" | A record still propagating | Wait; `dig yourdomain.com +short` until it shows your IP |
-| Pages load over HTTP but not HTTPS | Cert issued before DNS settled | Rerun `sudo certbot --nginx` after resolving |
-| Email renewal notices landing in spam | Normal for Let's Encrypt | Whitelist expiring-notices@letsencrypt.org |
+| DNS not resolving | propagation/typo | `nslookup` again; check A records |
+| Certbot "unable to verify domain" | A record not settled | wait, then re-run certbot |
+| https fails but http works | cert issued too early | re-run `sudo certbot --nginx` |
 
 ---
 
-**Next:** [Milestone 11 — Security & Final Checklist](11-security-hardening-and-final-check.md) →
+**Next:** [Milestone 11 — Security & Final Check](11-security-and-final-check.md) *(optional)*

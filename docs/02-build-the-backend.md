@@ -1,48 +1,35 @@
-# Milestone 2 — ⚡ Build the Backend
+# Milestone 2 — Build the Backend
 
-> **Last Updated:** September 10, 2026
+## Goal
 
----
-
-## 🎯 Goal
-
-Create the Express API that will become the backend container.
-
-## ✅ Prerequisites
-
-```text
-[ ] ✅ Milestone 1 (Node installed, project skeleton exists)
-```
+Create the Node/Express API. It's a simple message board with two endpoints.
 
 ---
 
-## 📝 Step 1 — Initialize the Node Project
+## Step 1 — Initialize the Project
 
 ```powershell
-cd D:\docker-fullstack-app\backend
+cd docker-fullstack-app\backend
 npm init -y
 npm install express pg dotenv cors
 npm install --save-dev nodemon
 ```
 
-```text
-express  →  web framework
-pg       →  PostgreSQL client
-dotenv   →  loads environment variables
-cors     →  allows cross-origin requests
-nodemon  →  auto-restarts on file changes (dev only)
-```
+| Package | Purpose |
+|---------|---------|
+| `express` | web framework (routes) |
+| `pg` | connect to PostgreSQL |
+| `dotenv` | load environment variables |
+| `cors` | allow the browser to call the API |
+| `nodemon` | auto-restart on file changes (dev only) |
 
 ---
 
-## 📝 Step 2 — Configure the package
-
-Open `backend/package.json`. Replace `main`, add `"type": "module"`, and set scripts:
+## Step 2 — Configure `package.json`
 
 ```json
 {
   "name": "backend",
-  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
@@ -51,17 +38,17 @@ Open `backend/package.json`. Replace `main`, add `"type": "module"`, and set scr
 }
 ```
 
-> 💡 `"type": "module"` lets you use `import` instead of `require` — modern Node syntax.
+`"type": "module"` lets you use `import` instead of `require`.
 
 ---
 
-## 📝 Step 3 — Create the Database Connection (`backend/src/db.js`)
+## Step 3 — Database Connection (`src/db.js`)
 
 ```js
 import pg from "pg";
 
 const config = {
-  host: process.env.DB_HOST || "localhost", // in Docker: 'db' (the service name)
+  host: process.env.DB_HOST || "localhost",
   port: process.env.DB_PORT || 5432,
   user: process.env.DB_USER || "appuser",
   password: process.env.DB_PASSWORD,
@@ -72,7 +59,6 @@ const config = {
 
 export const pool = new pg.Pool(config);
 
-// Create the table on startup so the app is self-bootstrapping
 export async function initDb() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS messages (
@@ -82,17 +68,17 @@ export async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
-  console.log('✅ Database ready (table "messages" verified)');
+  console.log("Database ready (table 'messages' verified)");
 }
 ```
 
-> 💡 Every config value comes from an **environment variable with a local fallback**. That's the one habit making the same code run on your laptop, in Docker Desktop, and on EC2.
+### The key habit: environment variables
 
-> 🇳🇵 **Saral Byakhya:** Password jasta gopya kura code ma nalekhi environment variable (`.env` file) bata linchha — eutai code le junsukai thauko setting manchha, ra gopyata pani joginchha.
+Every config value has an **environment variable with a default**. That one habit makes the same code run on your laptop, in Docker, and on EC2.
 
 ---
 
-## 📝 Step 4 — Create the API (`backend/src/index.js`)
+## Step 4 — The API (`src/index.js`)
 
 ```js
 import express from "express";
@@ -142,10 +128,10 @@ async function start() {
   try {
     await initDb();
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`✅ Backend listening on 0.0.0.0:${PORT}`);
+      console.log(`Backend listening on 0.0.0.0:${PORT}`);
     });
   } catch (err) {
-    console.error("❌ Startup failed (is the database up?):", err.message);
+    console.error("Startup failed (is the database up?):", err.message);
     process.exit(1);
   }
 }
@@ -153,27 +139,25 @@ async function start() {
 start();
 ```
 
-### Two details that matter in containers
+### Two lines that matter in Docker
 
-| Detail | Why |
-|--------|-----|
-| `app.listen(PORT, "0.0.0.0", ...)` | Inside a container, `localhost` means "this container only". Binding `0.0.0.0` exposes the API to the Docker network. |
-| `process.exit(1)` on startup failure | Makes the container exit so Docker/Compose can restart it once the database is ready (Milestones 6–7). |
+| Line | Reason |
+|------|--------|
+| `app.listen(PORT, "0.0.0.0", ...)` | Inside a container, `localhost` means only that container. `0.0.0.0` exposes the API to the Docker network. |
+| `process.exit(1)` on failure | Makes the container exit so Docker can restart it later. |
 
 ---
 
-## 📝 Step 5 — Add `.gitignore` and `.dockerignore`
+## Step 5 — Add `.gitignore` and `.dockerignore`
 
 `backend/.gitignore`:
-
-```text
+```
 node_modules/
 .env
 ```
 
 `backend/.dockerignore`:
-
-```text
+```
 node_modules
 npm-debug.log
 .env
@@ -185,48 +169,33 @@ tests
 *.md
 ```
 
-> 💡 `.dockerignore` keeps secrets and hundreds of MB of `node_modules` out of the Docker build context (Milestone 4).
-
 ---
 
-## 📝 Step 6 — Test Locally (Expect It to Fail)
+## Step 6 — Test Locally (Expect Failure)
 
 ```powershell
 node src/index.js
 ```
 
-Expected output (this is **correct**):
-
-```text
-❌ Startup failed (is the database up?): ... ECONNREFUSED
+Expected output — this is **correct**:
+```
+Startup failed (is the database up?): ... ECONNREFUSED
 ```
 
-There's no database yet — the code is ready for the DB container in Milestone 5. `Ctrl+C` to stop.
+There's no database yet. Press `Ctrl+C`. In Milestone 5 you'll add the database container.
 
 ---
 
-## ✅ Checkpoint
+## Checkpoint
 
-```text
+```
 [ ] backend/package.json has "type": "module" + start/dev scripts
-[ ] db.js reads config from environment variables with fallbacks
-[ ] index.js exposes /api/health, GET + POST /api/messages
-[ ] Backend listens on 0.0.0.0 (you can explain why)
-[ ] Startup failure exits with code 1 (you can explain why)
-[ ] .gitignore and .dockerignore exist in backend/
+[ ] db.js reads config from environment variables
+[ ] index.js has /api/health, GET + POST /api/messages
+[ ] app.listen uses 0.0.0.0
+[ ] .gitignore and .dockerignore exist
 ```
 
 ---
 
-## 💡 Common Beginner Mistakes
-
-| Mistake | Fix |
-|---------|-----|
-| Listening on `localhost` instead of `0.0.0.0` | Use `0.0.0.0` — required for containers |
-| Hardcoding DB credentials in code | Read everything from env vars |
-| `npm install` without a lockfile | Commit `package-lock.json` — `npm ci` needs it |
-| Exporting secrets to a repo | `.env` is git-ignored |
-
----
-
-**Next:** [Milestone 3 — Build the Frontend](03-build-the-frontend.md) →
+**Next:** [Milestone 3 — Build the Frontend](03-build-the-frontend.md)

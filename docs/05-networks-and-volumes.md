@@ -1,218 +1,155 @@
-# Milestone 5 — 🌐 Networks & Volumes
+# Milestone 5 — Networks & Volumes
 
-> **Last Updated:** September 10, 2026
+## Goal
 
----
-
-## 🎯 Goal
-
-Understand (hands-on) why containers talk by **name**, not `localhost` — and why database data needs a **volume** to survive.
-
-## ✅ Prerequisites
-
-```text
-[ ] ✅ Milestone 4 (backend image built)
-[ ] 🐳 Docker Desktop running
-```
+Learn why containers talk to each other **by name** (not `localhost`), and why database data needs a **volume** to survive.
 
 ---
 
-## 🧠 Why `localhost` Fails Between Containers
+## Part A — Networks: containers talk by name
+
+### The problem with `localhost`
 
 ```
-On your laptop:      localhost = your machine (Postgres is here)  ✅
-Inside a container:  localhost = THAT container itself           ❌ no Postgres inside
+On your laptop:      localhost = your machine (Postgres is there)   ✅
+Inside a container:  localhost = THAT container itself              ❌ no Postgres inside
 ```
 
-> 🇳🇵 **Saral Byakhya:** Container bhitra `localhost` bhaneko tyahi container aafai ho, aru kunai service hoina — tyasaile services lai ek-arkako naamle bolainchha (`db`, `backend`), `localhost` le hoina.
-
-Containers are isolated by default. On a **user-defined Docker network**, an embedded DNS server maps container/service names to IPs:
-
-```text
-backend:  "connect to db:5432"  →  DNS: db = 172.18.0.2  →  connected ✅
-```
+Containers are isolated. On a **Docker network**, an embedded DNS maps container names to IPs:
 
 ```
-                ┌────── Docker network: app-net ──────┐
-                │                                      │
-                │   ┌─────────────┐   ┌─────────────┐  │
-                │   │  backend    │──▶│    db       │  │
-                │   │ "wget db"   │ DNS│ :5432       │  │
-                │   └─────────────┘    └─────────────┘  │
-                └──────────────────────────────────────┘
+backend container says "connect to db:5432"
+        ↓
+Docker DNS: db = 172.18.0.2
+        ↓
+connected ✅
 ```
 
-> ⚠️ The default `bridge` network does **not** give name resolution. User-defined networks (which Compose creates automatically) do.
-
----
-
-## 📝 Step 1 — Create a Network and Run Two Containers
+### Try it
 
 ```powershell
 docker network create app-net
 ```
 
-Start a disposable database:
+Start a database container on that network:
 
 ```powershell
-docker run -d \
-  --name db \
-  --network app-net \
-  -e POSTGRES_USER=appuser \
-  -e POSTGRES_PASSWORD=devpassword \
-  -e POSTGRES_DB=appdb \
+docker run -d `
+  --name db `
+  --network app-net `
+  -e POSTGRES_USER=appuser `
+  -e POSTGRES_PASSWORD=devpassword `
+  -e POSTGRES_DB=appdb `
   postgres:16-alpine
 ```
 
-Start the backend on the same network:
+Start the backend on the SAME network:
 
 ```powershell
-docker run -d \
-  --name backend \
-  --network app-net \
-  -e DB_HOST=db \
-  -e DB_USER=appuser \
-  -e DB_PASSWORD=devpassword \
-  -e DB_NAME=appdb \
+docker run -d `
+  --name backend `
+  --network app-net `
+  -e DB_HOST=db `
+  -e DB_USER=appuser `
+  -e DB_PASSWORD=devpassword `
+  -e DB_NAME=appdb `
   fullstack-backend:1.0
 ```
 
-> 💡 `DB_HOST=db` — the hostname IS the container name. This is Docker's embedded DNS doing its job.
+`DB_HOST=db` — the hostname IS the container name. Docker DNS does the rest.
 
----
-
-## 📝 Step 2 — Prove the DNS Resolution
+### Prove it:
 
 ```powershell
 docker exec backend wget -qO- http://127.0.0.1:3000/api/health
+# {"status":"ok",...}
 ```
 
-Expected:
-
-```text
-{"status":"ok","uptime":...}
-```
-
-The backend reached `db` **by name** and created its table. Check from the database side:
+The backend reached Postgres **by name** and created its table. Check from the database side:
 
 ```powershell
-docker exec db psql -U appuser -d appdb -c '\dt'
-# public | messages | table   ← created by the backend's initDb()
+docker exec db psql -U appuser -d appdb -c "\dt"
+# messages | table
 ```
 
-Peek under the hood:
+> Security win: the database has **no published port** — nothing outside the Docker network can reach it, not even your laptop.
 
+Clean up:
 ```powershell
-docker network inspect app-net
+docker rm -f backend db
+docker network rm app-net
 ```
-
-Both containers have IPs on the network, mapped by Docker DNS.
-
-### The security win
-
-The DB has **no published port** — it's reachable from the Docker network only, invisible to the internet and even to your host machine.
 
 ---
 
-## 📝 Step 3 — See the Data-Loss Problem
+## Part B — Volumes: data survives
 
-```powershell
-docker rm -f db
-docker run -d --name db -e POSTGRES_PASSWORD=x postgres:16-alpine
-docker exec db psql -U postgres -c "\dt"
-# Did not find any tables.  ← every container removal destroyed the data
-docker rm -f db
-```
+### The problem
 
-A container's writable layer is **thrown away on removal** — your users' data would vanish on every redeploy.
+A container's files are thrown away when the container is removed. Destroy the container → lose the data.
 
-> 🇳🇵 **Saral Byakhya:** Container metie pani data nametiyos bhanera database ko data volume naamak bahiri bhandarma rakhinchha — ghar bhatkaayepani bahirako godamma rakheko saman joginchha.
+### The fix: named volume
 
----
-
-## 📝 Step 4 — Fix It With a Named Volume
+A **named volume** is storage stored outside the container, managed by Docker:
 
 ```powershell
 docker volume create pgdata
 
-docker run -d \
-  --name db \
-  -e POSTGRES_USER=appuser \
-  -e POSTGRES_PASSWORD=devpassword \
-  -e POSTGRES_DB=appdb \
-  -v pgdata:/var/lib/postgresql/data \
+docker run -d `
+  --name db `
+  -e POSTGRES_USER=appuser `
+  -e POSTGRES_PASSWORD=devpassword `
+  -e POSTGRES_DB=appdb `
+  -v pgdata:/var/lib/postgresql/data `
   postgres:16-alpine
 ```
 
-```text
--v <volume-name>:<path-inside-container>
-/var/lib/postgresql/data = where PostgreSQL writes EVERYTHING
-```
+`-v <volume-name>:<path-in-container>` — `/var/lib/postgresql/data` is where Postgres writes EVERYTHING.
 
-Add data, destroy, recreate, verify:
+### Prove it:
 
 ```powershell
 docker exec db psql -U appuser -d appdb -c "CREATE TABLE test (id int);"
-docker rm -f db
+docker rm -f db                     # destroy the container
 
-docker run -d \
-  --name db \
-  -e POSTGRES_USER=appuser \
-  -e POSTGRES_PASSWORD=devpassword \
-  -e POSTGRES_DB=appdb \
-  -v pgdata:/var/lib/postgresql/data \
-  postgres:16-alpine
+docker run -d --name db -e POSTGRES_USER=appuser -e POSTGRES_PASSWORD=devpassword -e POSTGRES_DB=appdb -v pgdata:/var/lib/postgresql/data postgres:16-alpine
 
 docker exec db psql -U appuser -d appdb -c "\dt"
-# public | test | table  ← data SURVIVED the container removal
+# test | table   ← data SURVIVED the container removal
 ```
 
 ---
 
-## 📝 Step 5 — Named Volume vs Bind Mount
+## Named Volume vs Bind Mount
 
 | Type | Syntax | Use for |
 |------|--------|---------|
-| 🗄️ **Named volume** | `db-data:/var/lib/postgresql/data` | Database files — Docker manages location, works on every OS |
-| 📂 **Bind mount** | `./backend/src:/app/src` | Development — your host files live-edit inside the container (Milestone 8) |
+| **Named volume** | `db-data:/var/lib/postgresql/data` | Database files — Docker manages the location |
+| **Bind mount** | `./backend/src:/app/src` | Development — your laptop files appear live inside the container (Milestone 7) |
 
 ---
 
-## 📝 Step 6 — Clean Up the Experiment
+## Clean up
 
 ```powershell
 docker rm -f db
 docker volume rm pgdata
-docker network rm app-net
 ```
 
-In Milestone 6, Compose automates all of this declaratively.
+In Milestone 6, Compose does all of this automatically.
 
 ---
 
-## ✅ Checkpoint
+## Checkpoint
 
-```text
-[ ] You can explain WHY localhost fails between containers
-[ ] Backend reached Postgres using hostname "db" on a user-defined network
-[ ] You inserted data, destroyed the container, and saw the data survive
-[ ] You can state named volume vs bind mount (and when to use each)
-[ ] The DB ran with NO published port — you can explain why that's good
-[ ] Cleanup done (db container, pgdata volume, app-net network removed)
+```
+[ ] You can explain why localhost fails between containers
+[ ] Backend reached Postgres using the hostname "db"
+[ ] Data survived container removal thanks to a volume
+[ ] You know named volume vs bind mount
+[ ] Cleanup done
 ```
 
 ---
 
-## 💡 Common Beginner Mistakes
-
-| Mistake | Symptom | Fix |
-|---------|---------|-----|
-| `localhost` as DB host | `ECONNREFUSED 127.0.0.1:5432` | Use the service name (`db`) |
-| Containers on different networks | Name doesn't resolve | Same network on both |
-| Relying on default `bridge` for DNS | Name doesn't resolve | User-defined network or Compose |
-| Publishing the DB port "just in case" | DB reachable from outside | Don't publish — same-network access is enough |
-| `docker compose down -v` by habit | Database mysteriously empty | `-v` only for intentional resets |
-
----
-
-**Next:** [Milestone 6 — Compose & Local Testing](06-docker-compose-and-local-testing.md) →
+**Next:** [Milestone 6 — Docker Compose & Local Testing](06-docker-compose-and-local-testing.md)

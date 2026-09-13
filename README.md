@@ -76,17 +76,17 @@ Follow them **in order**. Each one builds on the previous, has runnable commands
 
 | # | 🏁 Milestone | ⏱️ |
 |---|--------------|-----|
-| 1 | [Prerequisites & Setup](docs/01-prerequisites-and-setup.md) | ~25 min |
+| 1 | [Setup & Docker Basics](docs/01-setup-and-docker-basics.md) | ~25 min |
 | 2 | [Build the Backend](docs/02-build-the-backend.md) | ~25 min |
 | 3 | [Build the Frontend](docs/03-build-the-frontend.md) | ~20 min |
-| 4 | [Containerize with Dockerfiles](docs/04-containerize-with-dockerfiles.md) | ~35 min |
+| 4 | [Dockerfiles](docs/04-dockerfiles.md) | ~35 min |
 | 5 | [Networks & Volumes](docs/05-networks-and-volumes.md) | ~25 min |
 | 6 | [Compose & Local Testing](docs/06-docker-compose-and-local-testing.md) | ~25 min |
-| 7 | [Health Checks, Logging & Debugging](docs/07-health-checks-logging-debugging.md) | ~25 min |
-| 8 | [Dev vs Production Config](docs/08-dev-vs-production.md) | ~20 min |
+| 7 | [Dev Mode](docs/07-dev-mode.md) | ~20 min |
+| 8 | [Push to Docker Hub](docs/08-push-to-docker-hub.md) | ~15 min |
 | 9 | [Deploy to EC2](docs/09-deploy-to-ec2.md) | ~40 min |
-| 10 | [Domain Name & HTTPS](docs/10-domain-and-https.md) | ~35 min |
-| 11 | [Security & Final Checklist](docs/11-security-hardening-and-final-check.md) | ~25 min |
+| 10 | [Domain & HTTPS](docs/10-domain-and-https.md) | ~35 min |
+| 11 | [Security & Final Check](docs/11-security-and-final-check.md) | ~25 min |
 
 **Total: ~5 hours** including hands-on practice. Every concept has a 🇳🇵 Nepali one-liner.
 

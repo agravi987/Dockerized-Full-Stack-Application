@@ -40,6 +40,8 @@ No "install Node on your machine", no "install PostgreSQL locally" — everythin
               └──────────────────┘
 ```
 
+![Project Architecture Diagram](project-architecture-diagram.png)
+
 ---
 
 ## 🛠️ Tech Stack
